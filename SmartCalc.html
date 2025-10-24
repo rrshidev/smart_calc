@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бизнес Калькулятор</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .calc-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .calc-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .calc-card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: scale(1.02);
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #333;
+            min-height: 50px;
+        }
+        
+        .result.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .formula {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💼 Бизнес Калькулятор</h1>
+        
+        <div class="calculator-grid">
+            <!-- 1. Процент от числа -->
+            <div class="calc-card">
+                <h2>📊 Процент от числа</h2>
+                <div class="input-group">
+                    <label>Число:</label>
+                    <input type="number" id="percentBase1" placeholder="Например: 100">
+                </div>
+                <div class="input-group">
+                    <label>Процент (%):</label>
+                    <input type="number" id="percentValue1" placeholder="Например: 15">
+                </div>
+                <button class="btn" onclick="calculatePercentOf()">Вычислить</button>
+                <div class="result" id="result1"></div>
+            </div>
+            
+            <!-- 2. Сколько процентов составляет число -->
+            <div class="calc-card">
+                <h2>🔢 Сколько процентов составляет</h2>
+                <div class="input-group">
+                    <label>Часть (число):</label>
+                    <input type="number" id="partNumber" placeholder="Например: 25">
+                </div>
+                <div class="input-group">
+                    <label>Целое (от числа):</label>
+                    <input type="number" id="wholeNumber" placeholder="Например: 200">
+                </div>
+                <button class="btn" onclick="calculateWhatPercent()">Вычислить</button>
+                <div class="result" id="result2"></div>
+            </div>
+            
+            <!-- 3. Прибавить процент -->
+            <div class="calc-card">
+                <h2>➕ Прибавить процент к числу</h2>
+                <div class="input-group">
+                    <label>Исходное число:</label>
+                    <input type="number" id="baseNumber3" placeholder="Например: 1000">
+                </div>
+                <div class="input-group">
+                    <label>Процент (%):</label>
+                    <input type="number" id="percentToAdd" placeholder="Например: 20">
+                </div>
+                <button class="btn" onclick="calculateAddPercent()">Вычислить</button>
+                <div class="result" id="result3"></div>
+            </div>
+            
+            <!-- 4. Наценка и Маржа -->
+            <div class="calc-card">
+                <h2>💰 Наценка и Маржа</h2>
+                <div class="input-group">
+                    <label>Себестоимость:</label>
+                    <input type="number" id="costPrice" placeholder="Например: 800">
+                </div>
+                <div class="input-group">
+                    <label>Цена продажи:</label>
+                    <input type="number" id="sellingPrice" placeholder="Например: 1200">
+                </div>
+                <button class="btn" onclick="calculateMargin()">Вычислить</button>
+                <div class="result" id="result4"></div>
+            </div>
+            
+            <!-- 5. НДС -->
+            <div class="calc-card">
+                <h2>📑 Расчёт НДС</h2>
+                <div class="input-group">
+                    <label>Сумма без НДС:</label>
+                    <input type="number" id="amountWithoutVAT" placeholder="Например: 10000">
+                </div>
+                <div class="input-group">
+                    <label>Ставка НДС (%):</label>
+                    <input type="number" id="vatRate" value="20" placeholder="Например: 20">
+                </div>
+                <button class="btn" onclick="calculateVAT()">Вычислить</button>
+                <div class="result" id="result5"></div>
+            </div>
+            
+            <!-- 6. Выделить НДС -->
+            <div class="calc-card">
+                <h2>📤 Выделить НДС из суммы</h2>
+                <div class="input-group">
+                    <label>Сумма с НДС:</label>
+                    <input type="number" id="amountWithVAT" placeholder="Например: 12000">
+                </div>
+                <div class="input-group">
+                    <label>Ставка НДС (%):</label>
+                    <input type="number" id="vatRate2" value="20" placeholder="Например: 20">
+                </div>
+                <button class="btn" onclick="extractVAT()">Вычислить</button>
+                <div class="result" id="result6"></div>
+            </div>
+            
+            <!-- 7. Скидка -->
+            <div class="calc-card">
+                <h2>🎯 Расчёт скидки</h2>
+                <div class="input-group">
+                    <label>Исходная цена:</label>
+                    <input type="number" id="originalPrice" placeholder="Например: 5000">
+                </div>
+                <div class="input-group">
+                    <label>Скидка (%):</label>
+                    <input type="number" id="discountPercent" placeholder="Например: 15">
+                </div>
+                <button class="btn" onclick="calculateDiscount()">Вычислить</button>
+                <div class="result" id="result7"></div>
+            </div>
+            
+            <!-- 8. Зарплата (Чистая и Грязная) -->
+            <div class="calc-card">
+                <h2>💵 Зарплата (с НДФЛ)</h2>
+                <div class="input-group">
+                    <label>Зарплата (до вычета НДФЛ):</label>
+                    <input type="number" id="grossSalary" placeholder="Например: 100000">
+                </div>
+                <div class="input-group">
+                    <label>Ставка НДФЛ (%):</label>
+                    <input type="number" id="taxRate" value="13" placeholder="Например: 13">
+                </div>
+                <button class="btn" onclick="calculateNetSalary()">Вычислить</button>
+                <div class="result" id="result8"></div>
+            </div>
+            
+            <!-- 9. ROI (Окупаемость инвестиций) -->
+            <div class="calc-card">
+                <h2>📈 ROI (Окупаемость)</h2>
+                <div class="input-group">
+                    <label>Инвестиции:</label>
+                    <input type="number" id="investment" placeholder="Например: 50000">
+                </div>
+                <div class="input-group">
+                    <label>Доход (прибыль):</label>
+                    <input type="number" id="profit" placeholder="Например: 75000">
+                </div>
+                <button class="btn" onclick="calculateROI()">Вычислить</button>
+                <div class="result" id="result9"></div>
+            </div>
+            
+            <!-- 10. Процент изменения -->
+            <div class="calc-card">
+                <h2>📊 Процент изменения</h2>
+                <div class="input-group">
+                    <label>Начальное значение:</label>
+                    <input type="number" id="initialValue" placeholder="Например: 1000">
+                </div>
+                <div class="input-group">
+                    <label>Конечное значение:</label>
+                    <input type="number" id="finalValue" placeholder="Например: 1250">
+                </div>
+                <button class="btn" onclick="calculatePercentChange()">Вычислить</button>
+                <div class="result" id="result10"></div>
+            </div>
+            
+            <!-- 11. Средневзвешенная цена -->
+            <div class="calc-card">
+                <h2>⚖️ Средневзвешенная цена</h2>
+                <div class="input-group">
+                    <label>Цена 1:</label>
+                    <input type="number" id="price1" placeholder="Например: 100">
+                </div>
+                <div class="input-group">
+                    <label>Количество 1:</label>
+                    <input type="number" id="qty1" placeholder="Например: 5">
+                </div>
+                <div class="input-group">
+                    <label>Цена 2:</label>
+                    <input type="number" id="price2" placeholder="Например: 120">
+                </div>
+                <div class="input-group">
+                    <label>Количество 2:</label>
+                    <input type="number" id="qty2" placeholder="Например: 3">
+                </div>
+                <button class="btn" onclick="calculateWeightedAverage()">Вычислить</button>
+                <div class="result" id="result11"></div>
+            </div>
+            
+            <!-- 12. Кредит (Аннуитетный платёж) -->
+            <div class="calc-card">
+                <h2>🏦 Аннуитетный платёж по кредиту</h2>
+                <div class="input-group">
+                    <label>Сумма кредита:</label>
+                    <input type="number" id="loanAmount" placeholder="Например: 1000000">
+                </div>
+                <div class="input-group">
+                    <label>Ставка % (годовых):</label>
+                    <input type="number" id="interestRate" placeholder="Например: 12">
+                </div>
+                <div class="input-group">
+                    <label>Срок (месяцев):</label>
+                    <input type="number" id="loanTerm" placeholder="Например: 24">
+                </div>
+                <button class="btn" onclick="calculateLoanPayment()">Вычислить</button>
+                <div class="result" id="result12"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 1. Процент от числа
+        function calculatePercentOf() {
+            const base = parseFloat(document.getElementById('percentBase1').value);
+            const percent = parseFloat(document.getElementById('percentValue1').value);
+            const result = document.getElementById('result1');
+            
+            if (isNaN(base) || isNaN(percent)) {
+                result.innerHTML = '❌ Введите корректные числа';
+                result.classList.add('show');
+                return;
+            }
+            
+            const answer = (base * percent) / 100;
+            result.innerHTML = `
+                <strong>Результат: ${answer.toFixed(2)}</strong><br>
+                <span class="formula">${percent}% от ${base} = ${answer.toFixed(2)}</span>
+            `;
+            result.classList.add('show');
+        }
+        
+        // 2. Сколько процентов составляет
+        function calculateWhatPercent() {
+            const part = parseFloat(document.getElementById('partNumber').value);
+            const whole = parseFloat(document.getElementById('wholeNumber').value);
+            const result = document.getElementById('result2');
+            
+            if (isNaN(part) || isNaN(whole) || whole === 0) {
+                result.innerHTML = '❌ Введите корректные числа (целое не может быть 0)';
+                result.classList.add('show');
+                return;
+            }
+            
+            const answer = (part / whole) * 100;
+            result.innerHTML = `
+                <strong>Результат: ${answer.toFixed(2)}%</strong><br>
+                <span class="formula">${part} составляет ${answer.toFixed(2)}% от ${whole}</span>
+            `;
+            result.classList.add('show');
+        }
+        
+        // 3. Прибавить процент (с учётом обратной операции)
+        function calculateAddPercent() {
+    const base = parseFloat(document.getElementById('baseNumber3').value);
+    const percent = parseFloat(document.getElementById('percentToAdd').value);
+    const result = document.getElementById('result3');
+    
+    if (isNaN(base) || isNaN(percent)) {
+        result.innerHTML = '❌ Введите корректные числа';
+        result.classList.add('show');
+        return;
+    }
+    
+    if (percent >= 100) {
+        result.innerHTML = '❌ Процент должен быть меньше 100';
+        result.classList.add('show');
+        return;
+    }
+    
+    // Формула новой версии: новое значение = исходное / (1 - процент/100)
+    const newValue = base / (1 - percent / 100);
+    const increase = newValue - base;
+    
+    // Проверка обратной операции
+    const reverseCheck = newValue - (newValue * percent) / 100;
+    
+    result.innerHTML = `
+        <strong>Новое значение: ${newValue.toFixed(2)}</strong><br>
+        <strong>Прибавка: ${increase.toFixed(2)}</strong><br>
+        <span class="formula">
+            ${base} → ${newValue.toFixed(2)}<br>
+            ✅ Проверка: ${newValue.toFixed(2)} - ${percent}% = ${reverseCheck.toFixed(2)}
+        </span>
+    `;
+    result.classList.add('show');
+}
+        
+        // 4. Наценка и Маржа
+        function calculateMargin() {
+            const cost = parseFloat(document.getElementById('costPrice').value);
+            const selling = parseFloat(document.getElementById('sellingPrice').value);
+            const result = document.getElementById('result4');
+            
+            if (isNaN(cost) || isNaN(selling) || cost === 0) {
+                result.innerHTML = '❌ Введите корректные числа';
+                result.classList.add('show');
+                return;
+            }
+            
+            const profit = selling - cost;
+            const markup = (profit / cost) * 100; // Наценка
+            const margin = (profit / selling) * 100; // Маржа
+            
+            result.innerHTML = `
+                <strong>Прибыль: ${profit.toFixed(2)}</strong><br>
+                <strong>Наценка: ${markup.toFixed(2)}%</strong><br>
+                <strong>Маржа: ${margin.toFixed(2)}%</strong><br>
+                <span class="formula">
+                    Наценка = (Прибыль / Себестоимость) × 100<br>
+                    Маржа = (Прибыль / Цена продажи) × 100
+                </span>
+            `;
+            result.classList.add('show');
+        }
+        
+        // 5. НДС
+        function calculateVAT() {
+            const amount = parseFloat(document.getElementById('amountWithoutVAT').value);
+            const rate = parseFloat(document.getElementById('vatRate').value);
+            const result = document.getElementById('result5');
+            
+            if (isNaN(amount) || isNaN(rate)) {
+                result.innerHTML = '❌ Введите корректные числа';
+                result.classList.add('show');
+                return;
+            }
+            
+            const vat = (amount * rate) / 100;
+            const total = amount + vat;
+            
+            result.innerHTML = `
+                <strong>НДС: ${vat.toFixed(2)}</strong><br>
+                <strong>Сумма с НДС: ${total.toFixed(2)}</strong><br>
+                <span class="formula">${amount} + ${rate}% НДС = ${total.toFixed(2)}</span>
+            `;
+            result.classList.add('show');
+        }
+        
+        // 6. Выделить НДС
+        function extractVAT() {
+            const total = parseFloat(document.getElementById('amountWithVAT').value);
+            const rate = parseFloat(document.getElementById('vatRate2').value);
+            const result = document.getElementById('result6');
+            
+            if (isNaN(total) || isNaN(rate)) {
+                result.innerHTML = '❌ Введите корректные числа';
+                result.classList.add('show');
+                return;
+            }
+            
+            const vat = total - (total / (1 + rate / 100));
+            const amountWithoutVAT = total - vat;
+            
+            result.innerHTML = `
+                <strong>Сумма без НДС: ${amountWithoutVAT.toFixed(2)}</strong><br>
+                <strong>НДС: ${vat.toFixed(2)}</strong><br>
+                <span class="formula">НДС выделен из суммы ${total}</span>
+            `;
+            result.classList.add('show');
+        }
+        
+        // 7. Скидка
+        function calculateDiscount() {
+            const price = parseFloat(document.getElementById('originalPrice').value);
+            const discount = parseFloat(document.getElementById('discountPercent').value);
+            const result = document.getElementById('result7');
+            
+            if (isNaN(price) || isNaN(discount)) {
+                result.innerHTML = '❌ Введите корректные числа';
+                result.classList.add('show');
+                return;
+            }
+            
+            const discountAmount = (price * discount) / 100;
+            const finalPrice = price - discountAmount;
+            
+            result.innerHTML = `
+                <strong>Скидка: ${discountAmount.toFixed(2)}</strong><br>
+                <strong>Цена со скидкой: ${finalPrice.toFixed(2)}</strong><br>
+                <span class="formula">Экономия ${discount}%</span>
+            `;
+            result.classList.add('show');
+        }
+        
+        // 8. Зарплата
+        function calculateNetSalary() {
+            const gross = parseFloat(document.getElementById('grossSalary').value);
+            const tax = parseFloat(document.getElementById('taxRate').value);
+            const result = document.getElementById('result8');
+            
+            if (isNaN(gross) || isNaN(tax)) {
+                result.innerHTML = '❌ Введите корректные числа';
+                result.classList.add('show');
+                return;
+            }
+            
+            const taxAmount = (gross * tax) / 100;
+            const netSalary = gross - taxAmount;
+            
+            result.innerHTML = `
+                <strong>НДФЛ: ${taxAmount.toFixed(2)}</strong><br>
+                <strong>На руки: ${netSalary.toFixed(2)}</strong><br>
+                <span class="formula">Зарплата после вычета ${tax}% НДФЛ</span>
+            `;
+            result.classList.add('show');
+        }
+        
+        // 9. ROI
+        function calculateROI() {
+            const investment = parseFloat(document.getElementById('investment').value);
+            const profit = parseFloat(document.getElementById('profit').value);
+            const result = document.getElementById('result9');
+            
+            if (isNaN(investment) || isNaN(profit) || investment === 0) {
+                result.innerHTML = '❌ Введите корректные числа';
+                result.classList.add('show');
+                return;
+            }
+            
+            const netProfit = profit - investment;
+            const roi = (netProfit / investment) * 100;
+            
+            result.innerHTML = `
+                <strong>Чистая прибыль: ${netProfit.toFixed(2)}</strong><br>
+                <strong>ROI: ${roi.toFixed(2)}%</strong><br>
+                <span class="formula">
+                    ${roi > 0 ? '✅ Инвестиция окупилась' : '❌ Инвестиция не окупилась'}
+                </span>
+            `;
+            result.classList.add('show');
+        }
+        
+        // 10. Процент изменения
+        function calculatePercentChange() {
+            const initial = parseFloat(document.getElementById('initialValue').value);
+            const final = parseFloat(document.getElementById('finalValue').value);
+            const result = document.getElementById('result10');
+            
+            if (isNaN(initial) || isNaN(final) || initial === 0) {
+                result.innerHTML = '❌ Введите корректные числа';
+                result.classList.add('show');
+                return;
+            }
+            
+            const change = final - initial;
+            const percentChange = (change / initial) * 100;
+            const sign = percentChange > 0 ? '+' : '';
+            
+            result.innerHTML = `
+                <strong>Изменение: ${sign}${change.toFixed(2)}</strong><br>
+                <strong>Процент изменения: ${sign}${percentChange.toFixed(2)}%</strong><br>
+                <span class="formula">
+                    ${percentChange > 0 ? '📈 Рост' : '📉 Снижение'}
+                </span>
+            `;
+            result.classList.add('show');
+        }
+        
+        // 11. Средневзвешенная цена
+        function calculateWeightedAverage() {
+            const p1 = parseFloat(document.getElementById('price1').value);
+            const q1 = parseFloat(document.getElementById('qty1').value);
+            const p2 = parseFloat(document.getElementById('price2').value);
+            const q2 = parseFloat(document.getElementById('qty2').value);
+            const result = document.getElementById('result11');
+            
+            if (isNaN(p1) || isNaN(q1) || isNaN(p2) || isNaN(q2)) {
+                result.innerHTML = '❌ Введите корректные числа';
+                result.classList.add('show');
+                return;
+            }
+            
+            const totalQty = q1 + q2;
+            if (totalQty === 0) {
+                result.innerHTML = '❌ Общее количество не может быть 0';
+                result.classList.add('show');
+                return;
+            }
+            
+            const weightedAvg = ((p1 * q1) + (p2 * q2)) / totalQty;
+            const totalCost = (p1 * q1) + (p2 * q2);
+            
+            result.innerHTML = `
+                <strong>Средневзвешенная цена: ${weightedAvg.toFixed(2)}</strong><br>
+                <strong>Общая стоимость: ${totalCost.toFixed(2)}</strong><br>
+                <strong>Общее количество: ${totalQty}</strong><br>
+                <span class="formula">
+                    (${p1} × ${q1} + ${p2} × ${q2}) / ${totalQty}
+                </span>
+            `;
+            result.classList.add('show');
+        }
+        
+        // 12. Кредит (Аннуитетный платёж)
+        function calculateLoanPayment() {
+            const loan = parseFloat(document.getElementById('loanAmount').value);
+            const rate = parseFloat(document.getElementById('interestRate').value);
+            const term = parseFloat(document.getElementById('loanTerm').value);
+            const result = document.getElementById('result12');
+            
+            if (isNaN(loan) || isNaN(rate) || isNaN(term) || term === 0) {
+                result.innerHTML = '❌ Введите корректные числа';
+                result.classList.add('show');
+                return;
+            }
+            
+            const monthlyRate = (rate / 100) / 12;
+            const payment = loan * (monthlyRate * Math.pow(1 + monthlyRate, term)) / (Math.pow(1 + monthlyRate, term) - 1);
+            const totalPayment = payment * term;
+            const overpayment = totalPayment - loan;
+            
+            result.innerHTML = `
+                <strong>Ежемесячный платёж: ${payment.toFixed(2)}</strong><br>
+                <strong>Общая выплата: ${totalPayment.toFixed(2)}</strong><br>
+                <strong>Переплата: ${overpayment.toFixed(2)}</strong><br>
+                <span class="formula">
+                    Срок: ${term} мес., ставка ${rate}% годовых
+                </span>
+            `;
+            result.classList.add('show');
+        }
+    </script>
+</body>
+</html>
